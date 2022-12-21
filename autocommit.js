@@ -16,7 +16,7 @@ const defaultConfig = require('./config.js');
 // }
 
 const config = rc(
-    'git-aicommit',
+    'comgpt',
     defaultConfig,
     null,
     (content) => eval(content) // not good. but is it different from require()?
@@ -48,7 +48,7 @@ const diffCommand = `git diff \
 const diff = execSync(diffCommand, {encoding: 'utf8'});
 
 if (!diff) {
-    console.error("Diff seems empty. Please commit manually.");
+    console.error("[v1.4.1] Diff seems empty. Please commit manually.");
     process.exit(1);
 }
 
@@ -59,7 +59,7 @@ const openai = new OpenAIApi(new Configuration({
 // create a prompt
 const prompt = `${config.promptBeforeDiff}
 
-${diff}
+${diff.substring(0, 7000)}
 
 ${config.promptAfterDiff}
 
@@ -82,17 +82,17 @@ openai
     if (!config.autocommit) {
       console.log(`Autocommit is disabled. Here is the message:\n ${commitMessage}`);
     } else {
-      console.log(`Committing with following message:\n ${commitMessage}`);
+      console.log(`[v1.4.1] Committing with following message:\n ${commitMessage}`);
       execSync(
           `git commit -m "${commitMessage.replace(/"/g, '')}"`,
           {encoding: 'utf8'}
       );
 
-        if (config.openCommitTextEditor) {
-            spawn('git', ['commit', '--amend'], {
-                stdio: 'inherit'
-            });
-        }
+      if (config.openCommitTextEditor) {
+          spawn('git', ['commit', '--amend'], {
+              stdio: 'inherit'
+          });
+      }
     }
   });
 
